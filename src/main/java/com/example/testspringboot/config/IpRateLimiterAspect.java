@@ -2,6 +2,7 @@ package com.example.testspringboot.config;
 
 import com.example.testspringboot.annotation.IpRateLimit;
 import com.example.testspringboot.annotation.IpRateLimitData;
+import com.example.testspringboot.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public class IpRateLimiterAspect {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String ip = request.getRemoteAddr();
         LOGGER.info("IP '{}' request", ip);
-        String key = "ip-" + ip;
+        String key = "hash-" + Utils.hashString(ip);
 
         if (isRateLimited(key, ipRateLimit.limit(), ipRateLimit.duration())) {
             LOGGER.info("IP '{}' has request limit", ip);
