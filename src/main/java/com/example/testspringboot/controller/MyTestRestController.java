@@ -15,7 +15,8 @@ public class MyTestRestController {
     @IpRateLimit(limit = 5, duration = 60)
     @GetMapping("/protected-resource")
     public ResponseEntity<Object> protectedResource() {
-        LOGGER.info("Request come");
+        LOGGER.info("Request rendered successfully");
+
         return new ResponseEntity<>("Request get successfully", HttpStatus.OK);
     }
 }

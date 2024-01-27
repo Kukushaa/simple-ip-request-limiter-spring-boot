@@ -2,28 +2,39 @@ package com.example.testspringboot.config;
 
 import com.example.testspringboot.annotation.IpRateLimit;
 import com.example.testspringboot.annotation.IpRateLimitData;
+import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Date;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 @Aspect
 @Component
 public class IpRateLimiterAspect {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IpRateLimiterAspect.class);
     private final Map<String, IpRateLimitData> ipRateLimitDataMap = new HashMap<>();
 
     @Around("@annotation(ipRateLimit)")
     public Object limit(ProceedingJoinPoint joinPoint, IpRateLimit ipRateLimit) throws Throwable {
-        String ip = joinPoint.getKind();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ip = request.getRemoteAddr();
+        LOGGER.info("IP '{}' request", ip);
         String key = "ip-" + ip;
 
         if (isRateLimited(key, ipRateLimit.limit(), ipRateLimit.duration())) {
+            LOGGER.info("IP '{}' has request limit", ip);
             throw new RuntimeException("Rate limit exceeded for IP: " + ip);
         }
+
+        LOGGER.info("IP '{}' has not request limit", ip);
 
         return joinPoint.proceed();
     }
@@ -34,18 +45,20 @@ public class IpRateLimiterAspect {
         boolean finalAns = false;
 
         if (ipRateLimitData == null) {
-            ipRateLimitData = new IpRateLimitData(1, new Date());
+            ipRateLimitData = IpRateLimitData.setDefaultData();
         } else {
             if (ipRateLimitData.getAmount() >= limit) {
-                if (new Date(new Date().getTime() - ipRateLimitData.getRequestDate().getTime()).getTime() / 1000 < duration) {
+                if (ipRateLimitData.getTimeDiffInSeconds() < duration) {
                     finalAns = true;
                 } else {
-                    ipRateLimitData = new IpRateLimitData(1, new Date());
+                    ipRateLimitData = IpRateLimitData.setDefaultData();
                 }
             } else {
                 ipRateLimitData.setAmount(ipRateLimitData.getAmount() + 1);
             }
         }
+
+        LOGGER.info("Key '{}' sent reuqests '{}' times", key, ipRateLimitData.getAmount());
 
         ipRateLimitDataMap.put(key, ipRateLimitData);
 
