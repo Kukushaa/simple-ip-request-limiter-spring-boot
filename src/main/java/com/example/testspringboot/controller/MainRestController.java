@@ -13,10 +13,9 @@ public class MainRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainRestController.class);
 
     @IpRateLimit(limit = 5, duration = 60)
-    @GetMapping("/protected-resource")
+    @GetMapping(value = "/protected-resource")
     public ResponseEntity<Object> protectedResource() {
         LOGGER.info("Request rendered successfully");
-
         return new ResponseEntity<>("Request get successfully", HttpStatus.OK);
     }
 }
