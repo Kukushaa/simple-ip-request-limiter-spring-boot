@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MyTestRestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MyTestRestController.class);
+public class MainRestController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainRestController.class);
 
     @IpRateLimit(limit = 5, duration = 60)
     @GetMapping("/protected-resource")

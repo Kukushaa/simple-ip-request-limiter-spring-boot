@@ -1,4 +1,4 @@
-package com.example.testspringboot.config;
+package com.example.testspringboot.component;
 
 import com.example.testspringboot.annotation.IpRateLimit;
 import com.example.testspringboot.annotation.IpRateLimitData;
@@ -18,8 +18,8 @@ import java.util.Map;
 
 @Aspect
 @Component
-public class IpRateLimiterAspect {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IpRateLimiterAspect.class);
+public class IpRateLimiterAspectComponent {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IpRateLimiterAspectComponent.class);
     private final Map<String, IpRateLimitData> ipRateLimitDataMap = new HashMap<>();
 
     @Around("@annotation(ipRateLimit)")
