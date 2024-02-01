@@ -2,6 +2,7 @@ package com.example.testspringboot.component;
 
 import com.example.testspringboot.annotation.IpRateLimit;
 import com.example.testspringboot.annotation.IpRateLimitData;
+import com.example.testspringboot.exception.IpRateLimiterException;
 import com.example.testspringboot.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,7 +32,7 @@ public class IpRateLimiterAspectComponent {
 
         if (isRateLimited(key, ipRateLimit.limit(), ipRateLimit.duration())) {
             LOGGER.info("IP '{}' has request limit", ip);
-            throw new RuntimeException("Rate limit exceeded for IP: " + ip);
+            throw new IpRateLimiterException("Rate limit exceeded for IP: " + ip);
         }
 
         LOGGER.info("IP '{}' has not request limit", ip);
